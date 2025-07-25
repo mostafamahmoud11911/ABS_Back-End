@@ -15,10 +15,18 @@ const getAllServices = catchError(async (req, res, next) => {
 const getServiceBySlug = catchError(async (req, res, next) => {
   const service = await Service.findOne({ slug: req.params.slug });
 
-  if (!service) {
-    return next(new AppError("Service not found", 404));
-  }
-  res.status(200).json({ message: "Service fetched successfully", service });
+  !service ||
+    res.status(200).json({ message: "Service fetched successfully", service });
+  service || next(new AppError("Service not found", 404));
+});
+
+const getService = catchError(async (req, res, next) => {
+  const service = await Service.findById(req.params.id);
+
+  !service ||
+    res.status(200).json({ message: "Service fetched successfully", service });
+
+  service || next(new AppError("Service not found", 404));
 });
 
 const addService = catchError(async (req, res, next) => {
@@ -29,6 +37,7 @@ const addService = catchError(async (req, res, next) => {
       req.body.image = result.secure_url;
       req.body.imageId = result.public_id;
     }
+
     const pathName = path.join(
       path.resolve(),
       "src/uploads/services",
@@ -36,10 +45,11 @@ const addService = catchError(async (req, res, next) => {
     );
     fs.unlinkSync(pathName);
   }
-
   const service = new Service(req.body);
   await service.save();
-  res.status(200).json({ message: "Services added successfully", service });
+
+
+  res.status(201).json({ message: "Services added successfully", service });
 });
 
 const updateService = catchError(async (req, res, next) => {
@@ -55,15 +65,16 @@ const updateService = catchError(async (req, res, next) => {
       req.body.image = result.secure_url;
       req.body.imageId = result.public_id;
     }
+
+    const pathName = path.join(
+      path.resolve(),
+      "src/uploads/services",
+      req.file.filename
+    );
+    fs.unlinkSync(pathName);
   }
 
-  const pathName = path.join(
-    path.resolve(),
-    "src/uploads/services",
-    req.file.filename
-  );
-  fs.unlinkSync(pathName);
-
+  req.body.slug = req.body.title && slug(req.body.title);
   const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
   });
@@ -85,6 +96,7 @@ const deleteService = catchError(async (req, res, next) => {
 export {
   getAllServices,
   getServiceBySlug,
+  getService,
   addService,
   updateService,
   deleteService,
