@@ -9,19 +9,45 @@ import {
 import { protectedRoute } from "../../middleware/protectedRoute.js";
 import authorization from "../../middleware/authorization.js";
 import { uploadSingleImage } from "../../middleware/uploadImage.js";
+import {
+  addToolValidation,
+  toolValidation,
+  updateToolValidation,
+} from "./toolsValidation.js";
+import validationErrors from "../../middleware/validationError.js";
 
 const toolsRouter = express.Router();
 
 toolsRouter.post(
   "/",
-  uploadSingleImage("tools", "toolImg"),
+  validationErrors(addToolValidation),
   protectedRoute,
   authorization("admin"),
+  uploadSingleImage("tools", "image"),
   addTool
 );
 toolsRouter.get("/", getAllTools);
-toolsRouter.get("/:id", protectedRoute, authorization("admin"), getTool);
-toolsRouter.put("/:id", protectedRoute, authorization("admin"), updateTool);
-toolsRouter.delete("/:id", protectedRoute, authorization("admin"), deleteTool);
+toolsRouter.get(
+  "/:id",
+  validationErrors(toolValidation),
+  protectedRoute,
+  authorization("admin"),
+  getTool
+);
+toolsRouter.put(
+  "/:id",
+  validationErrors(updateToolValidation),
+  protectedRoute,
+  authorization("admin"),
+  uploadSingleImage("tools", "image"),
+  updateTool
+);
+toolsRouter.delete(
+  "/:id",
+  validationErrors(toolValidation),
+  protectedRoute,
+  authorization("admin"),
+  deleteTool
+);
 
 export default toolsRouter;

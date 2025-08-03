@@ -8,20 +8,20 @@ import {
   verifyEmail,
 } from "./authController.js";
 import { protectedRoute } from "../../middleware/protectedRoute.js";
-import { uploadSingleImage } from "../../middleware/uploadImage.js";
 import existEmail from "../../middleware/existEmail.js";
+import validationErrors from "../../middleware/validationError.js";
+import { changePasswordSchema, forgetPasswordSchema, resetPasswordSchema, signInSchema } from "./authValidation.js";
 
 const authRouter = express.Router();
 
 authRouter.post(
   "/signup",
-  uploadSingleImage("users", "picture"),
   existEmail,
   signUp
 );
-authRouter.post("/signin", signIn);
-authRouter.put("/change-password", protectedRoute, changePassword);
+authRouter.post("/signin", validationErrors(signInSchema), signIn);
+authRouter.put("/change-password", validationErrors(changePasswordSchema), protectedRoute, changePassword);
 authRouter.put("/verify", verifyEmail);
-authRouter.post("/forget-password", forgetPassword);
-authRouter.put("/reset-password", resetPassword);
+authRouter.post("/forget-password", validationErrors(forgetPasswordSchema), forgetPassword);
+authRouter.put("/reset-password", validationErrors(resetPasswordSchema), resetPassword);
 export default authRouter;

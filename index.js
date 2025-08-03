@@ -5,21 +5,17 @@ import cors from "cors";
 import globalError from "./src/middleware/globalError.js";
 import AppError from "./src/utils/AppError.js";
 import bootstrap from "./src/modules/bootstrap.js";
-import cron from "node-cron";
-import { cleanUnconfirmedEmails } from "./src/utils/cleanUnconfirmEmail.js";
+import helmet from "helmet";
 dotenv.config();
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(cors());
+app.use(helmet());
+app.use(cors({ origin: "http://localhost:3001", credentials: true }));
 app.use("/uploads", express.static("public"));
 
 bootstrap(app);
-
-cron.schedule("0 0 * * *", () => {
-  cleanUnconfirmedEmails();
-});
 
 app.use("*", (req, res, next) => {
   next(new AppError("Route not found" + req.originalUrl, 404));

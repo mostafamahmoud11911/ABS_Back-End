@@ -1,18 +1,41 @@
-import { validationResult } from "express-validator";
 import AppError from "../utils/AppError.js";
 
-function validationErrors(req, res, next) {
-  const errors = validationResult(req);
+function validationErrors(schema) {
+  return async (req, res, next) => {
+    let imgObj = {};
 
-  if (!errors.isEmpty()) {
-    return next(
-      new AppError(
-        errors.array().map((err) => err.msg),
-        400
-      )
+    const { file, files } = req;
+
+    if (file?.fieldname === "image") {
+      imgObj.image = file;
+    }
+
+    if (files?.image && Array.isArray(files.image)) {
+      imgObj.image = files.image[0];
+    }
+
+    if (files?.images && Array.isArray(files.images)) {
+      imgObj.images = files.images;
+    }
+
+
+    const { error } = schema.validate(
+      {
+        ...req.body,
+        ...req.params,
+        ...req.query,
+        ...imgObj,
+      },
+      {
+        abortEarly: false,
+      }
     );
-  }
-  next();
+    if (error) {
+      let errMsgs = error.details.map((err) => err.message);
+      return next(new AppError(errMsgs, 400));
+    }
+    next();
+  };
 }
 
 export default validationErrors;

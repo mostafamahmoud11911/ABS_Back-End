@@ -1,48 +1,22 @@
-import { body, param } from "express-validator";
+import Joi from "joi";
 
-export const addUserValidationRules = [
-  body("name")
-    .notEmpty()
-    .isLength({ min: 3 })
-    .withMessage("Name is required")
-    .trim(),
-  body("email").isEmail().withMessage("Invalid email"),
-  body("password")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters"),
-  body("profilePic").optional(),
-  body("role")
-    .isIn(["user", "admin"])
-    .default("user")
-    .withMessage("Invalid role"),
-  body("passwordChangedAt").optional(),
-  body("otp").optional(),
-  body("otpExpiry").optional(),
-];
+const addUserValidation = Joi.object({
+  name: Joi.string().trim().required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+  role: Joi.string().required(),
+});
 
-export const updateUserValidationRules = [
-  param("id").isMongoId().withMessage("Invalid user id"),
-  body("name")
-    .isLength({ min: 3 })
-    .withMessage("Name is required")
-    .trim()
-    .optional(),
-  body("email").isEmail().withMessage("Invalid email").optional(),
-  body("password")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters")
-    .optional(),
-  body("profilePic").optional(),
-  body("role")
-    .isIn(["user", "admin"])
-    .default("user")
-    .withMessage("Invalid role")
-    .optional(),
-  body("passwordChangedAt").optional(),
-  body("otp").optional(),
-  body("otpExpiry").optional(),
-];
+const updateUserValidation = Joi.object({
+  id: Joi.string().required(),
+  name: Joi.string().trim().optional(),
+  email: Joi.string().email().optional(),
+  password: Joi.string().optional(),
+  role: Joi.string().optional(),
+});
 
-export const userValidationRules = [
-  param("id").isMongoId().withMessage("Invalid user id"),
-];
+const userValidation = Joi.object({
+  id: Joi.string().required(),
+});
+
+export { addUserValidation, updateUserValidation, userValidation };

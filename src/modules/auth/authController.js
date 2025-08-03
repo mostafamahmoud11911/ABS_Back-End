@@ -3,10 +3,7 @@ import bcrypt from "bcrypt";
 import AppError from "../../utils/AppError.js";
 import jwt from "jsonwebtoken";
 import { catchError } from "../../middleware/catchError.js";
-import { uploadImage } from "../../utils/cloudinary.js";
 import email from "../../utils/email.js";
-import path from "path";
-import fs from "fs";
 
 export const signUp = catchError(async (req, res) => {
   const digitNum = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
@@ -18,25 +15,7 @@ export const signUp = catchError(async (req, res) => {
   const user = new User(req.body);
   await user.save();
 
-  if (req.file) {
-    const result = await uploadImage(req.file, "profile");
-    req.body.profilePic = result.secure_url;
-    req.body.profilePicId = result.public_id;
-  }
-
-  const pathName = path.join(
-    path.resolve(),
-    "src/uploads/users",
-    req.file.filename
-  );
-  fs.unlinkSync(pathName);
-
-
-  const token = jwt.sign(
-    { _id: user._id, name: user.name, email: user.email },
-    process.env.JWT_SECRET
-  );
-  res.status(201).json({ message: "User created successfully", token });
+  res.status(201).json({ message: "User created successfully"});
 });
 
 export const signIn = catchError(async (req, res, next) => {
@@ -45,10 +24,15 @@ export const signIn = catchError(async (req, res, next) => {
     confirmEmail: true,
   });
 
-
-  if (user && bcrypt.compareSync(req.body.password, user.password)) {
+  if (user && (await bcrypt.compare(req.body.password, user.password))) {
     const token = jwt.sign(
-      { _id: user._id, name: user.name, email: user.email, role: user.role },
+      {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        img: user.profilePic,
+        role: user.role,
+      },
       process.env.JWT_SECRET
     );
     return res
@@ -61,14 +45,20 @@ export const signIn = catchError(async (req, res, next) => {
 export const changePassword = catchError(async (req, res, next) => {
   const user = await User.findById(req.user._id);
 
-  if (user && bcrypt.compare(req.body.oldPassword, user.password)) {
+  if (user && (await bcrypt.compare(req.body.oldPassword, user.password))) {
     await User.findByIdAndUpdate(user._id, {
       password: req.body.newPassword,
       passwordChangedAt: Date.now(),
     });
 
     const token = jwt.sign(
-      { _id: user._id, name: user.name, email: user.email, role: user.role },
+      {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        img: user.profilePic,
+        role: user.role,
+      },
       process.env.JWT_SECRET
     );
     return res
@@ -117,7 +107,6 @@ export const forgetPassword = catchError(async (req, res, next) => {
   user.otp = String(digitNum);
   user.otpExpiry = Date.now() + 24 * 60 * 60 * 1000;
   await user.save();
-
 
   email(user.email, String(digitNum));
   res.status(200).json({ message: "Otp sent successfully" });

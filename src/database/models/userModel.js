@@ -16,8 +16,6 @@ const schema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    profilePic: String,
-    profilePicId: String,
     passwordChangedAt: Date,
     otp: {
       type: String,
@@ -43,13 +41,13 @@ const schema = new mongoose.Schema(
   }
 );
 
-schema.pre("save", function () {
-  this.password = bcrypt.hashSync(this.password, 10);
+schema.pre("save", async function () {
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
-schema.pre("findOneAndUpdate", function () {
+schema.pre("findOneAndUpdate", async function () {
   if (this._update.password) {
-    this._update.password = bcrypt.hashSync(this._update.password, 10);
+    this._update.password = await bcrypt.hash(this._update.password, 10);
   }
 });
 

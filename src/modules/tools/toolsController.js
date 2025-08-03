@@ -7,25 +7,22 @@ import fs from "fs";
 
 const addTool = catchError(async (req, res, next) => {
   if (req.file) {
-    req.body.image = req.file.path;
+    const result = await uploadImage(req.file, "tools");
+    req.body.image = result.secure_url;
+    req.body.imageId = result.public_id;
+
+    const pathName = path.join(
+      path.resolve(),
+      "src/uploads/tools",
+      req.file.filename
+    );
+    fs.unlinkSync(pathName);
   }
 
   const tool = new Tools(req.body);
 
-  if (req.file && tool) {
-    const result = await uploadImage(req.file, "tools");
-    tool.image = result.secure_url;
-    tool.imageId = result.public_id;
-  }
-
   await tool.save();
-  const pathName = path.join(
-    path.resolve(),
-    "src/uploads/tools",
-    req.file.filename
-  );
-  fs.unlinkSync(pathName);
-  res.status(200).json({ message: "Tools added successfully", tool });
+  res.status(201).json({ message: "Tools added successfully", tool });
 });
 
 const getAllTools = catchError(async (req, res, next) => {
@@ -56,7 +53,6 @@ const deleteTool = catchError(async (req, res, next) => {
 });
 
 const updateTool = catchError(async (req, res, next) => {
-
   const prevTool = await Tools.findById(req.params.id);
 
   if (req.file) {

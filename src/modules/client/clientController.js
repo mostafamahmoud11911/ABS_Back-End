@@ -9,24 +9,19 @@ import fs from "fs";
 export const addClient = catchError(async (req, res, next) => {
   req.body.slug = slug(req.body.company);
   if (req.file) {
-    req.body.image = req.file.path;
+    const result = await uploadImage(req.file, "clients");
+    req.body.image = result.secure_url;
+    req.body.imageId = result.public_id;
+
+    const pathName = path.join(
+      path.resolve(),
+      "src/uploads/clients",
+      req.file.filename
+    );
+    fs.unlinkSync(pathName);
   }
   const client = new Client(req.body);
-
-  if (req.file && client) {
-    const result = await uploadImage(req.file, "clients");
-    client.image = result.secure_url;
-    client.imageId = result.public_id;
-  }
-
   await client.save();
-
-  const pathName = path.join(
-    path.resolve(),
-    "src/uploads/clients",
-    req.file.filename
-  );
-  fs.unlinkSync(pathName);
 
   res.status(201).json({ message: "Client added successfully", client });
 });

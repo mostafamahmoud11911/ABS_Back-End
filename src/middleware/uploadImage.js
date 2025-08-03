@@ -28,3 +28,7 @@ function fileUpload(folderName) {
 export function uploadSingleImage(folderName, fileName) {
   return fileUpload(folderName).single(fileName);
 }
+
+export function uploadMax(folderName, arrayOfFields) {
+  return fileUpload(folderName).fields(arrayOfFields);
+}

@@ -12,9 +12,10 @@ import { protectedRoute } from "../../middleware/protectedRoute.js";
 import authorization from "../../middleware/authorization.js";
 import validationErrors from "../../middleware/validationError.js";
 import {
-  addServiceValidationRules,
-  serviceValidationRules,
-  updateServiceValidationRules,
+  addServiceSchema,
+  getServiceSlugSchema,
+  serviceSchema,
+  updateServiceSchema,
 } from "./serviceValidation.js";
 
 const servicesRouter = express.Router();
@@ -22,40 +23,37 @@ const servicesRouter = express.Router();
 servicesRouter.get("/", getAllServices);
 servicesRouter.get(
   "/:slug",
-  serviceValidationRules,
-  validationErrors,
+  validationErrors(getServiceSlugSchema),
   getServiceBySlug
 );
 servicesRouter.get(
   "/single/:id",
-  serviceValidationRules,
-  validationErrors,
+  validationErrors(serviceSchema),
+  protectedRoute,
+  authorization("admin"),
   getService
 );
 servicesRouter.post(
   "/",
+  validationErrors(addServiceSchema),
   protectedRoute,
   authorization("admin"),
   uploadSingleImage("services", "image"),
-  addServiceValidationRules,
-  validationErrors,
   addService
 );
 servicesRouter.put(
   "/:id",
+  validationErrors(updateServiceSchema),
   protectedRoute,
   authorization("admin"),
   uploadSingleImage("services", "image"),
-  updateServiceValidationRules,
-  validationErrors,
   updateService
 );
 servicesRouter.delete(
   "/:id",
+  validationErrors(serviceSchema),
   protectedRoute,
   authorization("admin"),
-  serviceValidationRules,
-  validationErrors,
   deleteService
 );
 

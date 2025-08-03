@@ -1,50 +1,59 @@
-import { body, param } from "express-validator";
+import Joi from "joi"
 
-const addServiceValidationRules = [
-  body("title")
-    .notEmpty()
-    .withMessage("Title is required")
-    .isString()
-    .withMessage("Title must be a string")
-    .trim()
-    .isLength({ min: 3, max: 100 })
-    .withMessage("Title must be between 3 and 100 characters"),
 
-  body("description")
-    .notEmpty()
-    .withMessage("Description is required")
-    .isLength({ min: 10 })
-    .withMessage("Description must be at least 10 characters long"),
 
-  body("active").isBoolean().optional(),
-];
+const getServiceSlugSchema = Joi.object({
+    slug: Joi.string().required(),
+});
 
-const updateServiceValidationRules = [
-  param("id").isMongoId().withMessage("Invalid service id"),
-  body("title")
-    .notEmpty()
-    .withMessage("Title is required")
-    .isString()
-    .withMessage("Title must be a string")
-    .trim()
-    .isLength({ min: 3, max: 100 })
-    .withMessage("Title must be between 3 and 100 characters")
-    .optional(),
-  body("description")
-    .notEmpty()
-    .withMessage("Description is required")
-    .isLength({ min: 10 })
-    .withMessage("Description must be at least 10 characters long")
-    .optional(),
-  body("active").isBoolean().optional(),
-];
+const addServiceSchema = Joi.object({
+    title: Joi.string().trim().required(),
+    description: Joi.string().min(10).max(1000).required(),
+    image: Joi.object({
+        filename: Joi.string().required(),
+        fieldname: Joi.string().required(),
+        originalname: Joi.string().required(),
+        encoding: Joi.string().required(),
+        mimetype: Joi.string()
+            .valid("image/jpeg", "image/png", "image/gif", "image/jpg")
+            .required(),
+        destination: Joi.string().required(),
+        path: Joi.string().required(),
+        size: Joi.number().max(5242880).required(),
+    }),
+    active: Joi.boolean().required(),
+});
 
-const serviceValidationRules = [
-  param("id").isMongoId().withMessage("Invalid service id"),
-];
+const updateServiceSchema = Joi.object({
+    id: Joi.string().required(),
+    title: Joi.string().trim(),
+    description: Joi.string().min(10).max(1000),
+    image: Joi.object({
+        filename: Joi.string(),
+        fieldname: Joi.string(),
+        originalname: Joi.string(),
+        encoding: Joi.string(),
+        mimetype: Joi.string().valid(
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/jpg"
+        ),
+        destination: Joi.string(),
+        path: Joi.string(),
+        size: Joi.number().max(5242880),
+    }),
+    active: Joi.boolean(),
+});
+
+
+const serviceSchema = Joi.object({
+    id: Joi.string().required(),
+});
 
 export {
-  addServiceValidationRules,
-  updateServiceValidationRules,
-  serviceValidationRules,
+    getServiceSlugSchema,
+    addServiceSchema,
+    updateServiceSchema,
+    serviceSchema,
 };
