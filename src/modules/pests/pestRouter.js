@@ -1,8 +1,18 @@
 import express from "express";
-import { addPest, deletePest, getAllPests, getPest } from "./pestController.js";
+import {
+  addPest,
+  deletePest,
+  getAllPests,
+  getPest,
+  updatePest,
+} from "./pestController.js";
 import { uploadMax } from "../../middleware/uploadImage.js";
 import validationErrors from "../../middleware/validationError.js";
-import { addPestSchema, pestSchema } from "./pestValidation.js";
+import {
+  addPestSchema,
+  pestSchema,
+  updatePestSchema,
+} from "./pestValidation.js";
 import { protectedRoute } from "../../middleware/protectedRoute.js";
 import authorization from "../../middleware/authorization.js";
 
@@ -34,6 +44,14 @@ pestRouter.delete(
   protectedRoute,
   authorization("admin"),
   deletePest
+);
+
+pestRouter.put(
+  "/:id",
+  validationErrors(updatePestSchema),
+  protectedRoute,
+  authorization("admin"),
+  updatePest
 );
 
 export default pestRouter;

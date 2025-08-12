@@ -1,4 +1,4 @@
-import AppError from "../utils/AppError.js";
+import AppError from "../utils/ApiError.js";
 
 function validationErrors(schema) {
   return async (req, res, next) => {

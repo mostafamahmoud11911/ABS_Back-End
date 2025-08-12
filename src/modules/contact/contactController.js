@@ -1,5 +1,6 @@
 import Contact from "../../database/models/contactModel.js";
 import { catchError } from "../../middleware/catchError.js";
+import ApiError from "../../utils/ApiError.js";
 import message from "../../utils/emailContact.js";
 
 export const getAllContact = catchError(async (req, res, next) => {
@@ -15,7 +16,7 @@ export const addContact = catchError(async (req, res, next) => {
   });
 
   if (isBlocked) {
-    return next(new AppError("this email can't send message", 403));
+    return next(new ApiError("this email can't send message", 403));
   }
 
   const contact = new Contact(req.body);
@@ -34,7 +35,7 @@ export const deleteContact = catchError(async (req, res, next) => {
 
   !contact ||
     res.status(200).json({ message: "Contact deleted successfully", contact });
-  contact || next(new AppError("Contact not found", 404));
+  contact || next(new ApiError("Contact not found", 404));
 });
 
 export const blockContact = catchError(async (req, res, next) => {
@@ -43,7 +44,7 @@ export const blockContact = catchError(async (req, res, next) => {
   });
 
   if (!contact) {
-    return next(new AppError("Contact not found", 404));
+    return next(new ApiError("Contact not found", 404));
   }
 
   contact.blocked = !contact.blocked;

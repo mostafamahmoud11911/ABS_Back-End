@@ -1,6 +1,6 @@
 import Service from "../../database/models/serviceModel.js";
 import { catchError } from "../../middleware/catchError.js";
-import AppError from "../../utils/AppError.js";
+import ApiError from "../../utils/ApiError.js";
 import path from "path";
 import fs from "fs";
 import { deleteImage, uploadImage } from "../../utils/cloudinary.js";
@@ -17,7 +17,7 @@ const getServiceBySlug = catchError(async (req, res, next) => {
 
   !service ||
     res.status(200).json({ message: "Service fetched successfully", service });
-  service || next(new AppError("Service not found", 404));
+  service || next(new ApiError("Service not found", 404));
 });
 
 const getService = catchError(async (req, res, next) => {
@@ -26,7 +26,7 @@ const getService = catchError(async (req, res, next) => {
   !service ||
     res.status(200).json({ message: "Service fetched successfully", service });
 
-  service || next(new AppError("Service not found", 404));
+  service || next(new ApiError("Service not found", 404));
 });
 
 const addService = catchError(async (req, res, next) => {
@@ -48,13 +48,15 @@ const addService = catchError(async (req, res, next) => {
   const service = new Service(req.body);
   await service.save();
 
-
   res.status(201).json({ message: "Services added successfully", service });
 });
 
 const updateService = catchError(async (req, res, next) => {
   const prevService = await Service.findById(req.params.id);
 
+  if (!prevService) {
+    return next(new ApiError("Service not found", 404));
+  }
   if (req.file) {
     const result = await uploadImage(req.file, "services");
     if (result && result.secure_url) {
@@ -90,7 +92,7 @@ const deleteService = catchError(async (req, res, next) => {
 
   !service ||
     res.status(200).json({ message: "Service deleted successfully", service });
-  service || next(new AppError("Service not found", 404));
+  service || next(new ApiError("Service not found", 404));
 });
 
 export {

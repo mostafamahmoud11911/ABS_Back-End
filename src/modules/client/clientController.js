@@ -2,7 +2,7 @@ import slug from "slug";
 import Client from "../../database/models/clientModel.js";
 import { catchError } from "../../middleware/catchError.js";
 import { deleteImage, uploadImage } from "../../utils/cloudinary.js";
-import AppError from "../../utils/AppError.js";
+import ApiError from "../../utils/ApiError.js";
 import path from "path";
 import fs from "fs";
 
@@ -31,7 +31,7 @@ export const getAllClients = catchError(async (req, res, next) => {
   !clients ||
     res.status(200).json({ message: "Clients fetched successfully", clients });
 
-  clients || next(new AppError("Clients not found", 404));
+  clients || next(new ApiError("Clients not found", 404));
 });
 
 export const getClient = catchError(async (req, res, next) => {
@@ -39,7 +39,7 @@ export const getClient = catchError(async (req, res, next) => {
   !client ||
     res.status(200).json({ message: "Client fetched successfully", client });
 
-  client || next(new AppError("Client not found", 404));
+  client || next(new ApiError("Client not found", 404));
 });
 
 export const updateClient = catchError(async (req, res, next) => {
@@ -70,7 +70,7 @@ export const updateClient = catchError(async (req, res, next) => {
 
   !client ||
     res.status(200).json({ message: "Client updated successfully", client });
-  client || next(new AppError("Client not found", 404));
+  client || next(new ApiError("Client not found", 404));
 });
 
 export const deleteClient = catchError(async (req, res, next) => {
@@ -79,5 +79,5 @@ export const deleteClient = catchError(async (req, res, next) => {
     await deleteImage(client.imageId);
   }
   !client || res.status(200).json({ message: "Client deleted successfully" });
-  client || next(new AppError("Client not found", 404));
+  client || next(new ApiError("Client not found", 404));
 });
