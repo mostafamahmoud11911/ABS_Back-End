@@ -13,7 +13,7 @@ const addTool = catchError(async (req, res, next) => {
 
     const pathName = path.join(
       path.resolve(),
-      "src/uploads/tools",
+      "src/uploads/temp",
       req.file.filename
     );
     fs.unlinkSync(pathName);
@@ -71,7 +71,7 @@ const updateTool = catchError(async (req, res, next) => {
 
     const pathName = path.join(
       path.resolve(),
-      "src/uploads/tools",
+      "src/uploads/temp",
       req.file.filename
     );
     fs.unlinkSync(pathName);

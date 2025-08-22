@@ -15,7 +15,7 @@ export const addPest = catchError(async (req, res) => {
 
       const pathName = path.join(
         path.resolve(),
-        "src/uploads/pests",
+        "src/uploads/temp",
         req.file.filename
       );
       fs.unlinkSync(pathName);
@@ -69,7 +69,7 @@ export const updatePest = catchError(async (req, res, next) => {
 
       const pathName = path.join(
         path.resolve(),
-        "src/uploads/pests",
+        "src/uploads/temp",
         req.file.filename
       );
       fs.unlinkSync(pathName);
@@ -80,35 +80,5 @@ export const updatePest = catchError(async (req, res, next) => {
     });
 
     res.status(200).json({ message: "Pest updated successfully", pest });
-
-    // if (Array.isArray(req.files.images)) {
-    //   const uploadedImages = [];
-
-    //   for (const file of req.files.images) {
-    //     const result = await uploadImage(file, "pests");
-
-    //     if (result && result.secure_url) {
-    //       uploadedImages.push({
-    //         url: result.secure_url,
-    //         id: result.public_id,
-    //       });
-
-    //       if (prevPest.images?.length) {
-    //         for (const img of prevPest.images) {
-    //           if (img.id) await deleteImage(img.id);
-    //         }
-    //       }
-
-    //       const pathName = path.join(
-    //         path.resolve(),
-    //         "src/uploads/pests",
-    //         file.filename
-    //       );
-    //       fs.unlinkSync(pathName);
-    //     }
-    //   }
-
-    //   req.body.images = uploadedImages;
-    // }
   }
 });

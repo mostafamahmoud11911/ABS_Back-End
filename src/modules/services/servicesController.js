@@ -40,7 +40,7 @@ const addService = catchError(async (req, res, next) => {
 
     const pathName = path.join(
       path.resolve(),
-      "src/uploads/services",
+      "src/uploads/temp",
       req.file.filename
     );
     fs.unlinkSync(pathName);
