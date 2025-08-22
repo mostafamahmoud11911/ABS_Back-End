@@ -1,3 +1,4 @@
+import slugify from "slugify";
 import Service from "../../database/models/serviceModel.js";
 import { catchError } from "../../middleware/catchError.js";
 import ApiError from "../../utils/ApiError.js";
@@ -5,9 +6,8 @@ import path from "path";
 import fs from "fs";
 import { deleteImage, uploadImage } from "../../utils/cloudinary.js";
 
-
 const getAllServices = catchError(async (req, res, next) => {
-  const services = await Service.find()
+  const services = await Service.find();
 
   res.status(200).json({ message: "Services fetched successfully", services });
 });
@@ -30,7 +30,7 @@ const getService = catchError(async (req, res, next) => {
 });
 
 const addService = catchError(async (req, res, next) => {
-
+  req.body.slug = slugify(req.body.title);
   if (req.file) {
     const result = await uploadImage(req.file, "services");
     if (result && result.secure_url) {
@@ -47,7 +47,6 @@ const addService = catchError(async (req, res, next) => {
   }
   const service = new Service(req.body);
   await service.save();
-
 
   res.status(201).json({ message: "Services added successfully", service });
 });
@@ -76,8 +75,7 @@ const updateService = catchError(async (req, res, next) => {
     );
     fs.unlinkSync(pathName);
   }
-
-
+  req.body.slug = slugify(req.body.title);
   const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
   });
