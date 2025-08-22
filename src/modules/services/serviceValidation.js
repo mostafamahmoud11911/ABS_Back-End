@@ -9,6 +9,7 @@ const getServiceSlugSchema = Joi.object({
 const addServiceSchema = Joi.object({
     title: Joi.string().min(10).max(1000).trim().required(),
     description: Joi.string().min(10).max(10000).required(),
+    summary: Joi.string().min(10).max(10000).required(),
     image: Joi.object({
         filename: Joi.string().required(),
         fieldname: Joi.string().required(),
@@ -28,6 +29,7 @@ const updateServiceSchema = Joi.object({
     id: Joi.string().required(),
     title: Joi.string().trim(),
     description: Joi.string().min(10).max(1000),
+    summary: Joi.string().min(10).max(1000),
     image: Joi.object({
         filename: Joi.string(),
         fieldname: Joi.string(),
