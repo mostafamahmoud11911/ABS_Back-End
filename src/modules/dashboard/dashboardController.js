@@ -1,20 +1,15 @@
 import Client from "../../database/models/clientModel.js";
 import Contact from "../../database/models/contactModel.js";
-import Pest from "../../database/models/pestModel.js";
 import Service from "../../database/models/serviceModel.js";
-import Tools from "../../database/models/toolsModel.js";
 import { catchError } from "../../middleware/catchError.js";
 
 const dashboard = catchError(async (req, res) => {
   const lastMonth = new Date();
   lastMonth.setDate(lastMonth.getDate() - 30);
 
-  // Batch all queries using Promise.all for parallel execution
   const [
     clients,
-    toolsCount,
     services,
-    pestsCount,
     contacts,
     thisMonthClients,
     lastFiveClients,
@@ -23,9 +18,7 @@ const dashboard = catchError(async (req, res) => {
     serviceCounts,
   ] = await Promise.all([
     Client.find().lean(),
-    Tools.countDocuments(),
     Service.find().lean(),
-    Pest.countDocuments(),
     Contact.find().lean(),
     Client.find({ createdAt: { $gte: lastMonth } })
       .select("company image")
@@ -75,20 +68,12 @@ const dashboard = catchError(async (req, res) => {
       changePercentage,
       lastFiveClients,
     },
-    tools: {
-      name: "Tools",
-      total: toolsCount,
-    },
     services: {
       name: "Services",
       total: services.length,
       lastFiveServices,
       active: activeServices,
       inactive: inactiveServices,
-    },
-    pests: {
-      name: "Pests",
-      total: pestsCount,
     },
     contacts: {
       name: "Contacts",
