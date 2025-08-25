@@ -12,13 +12,6 @@ export const addClient = catchError(async (req, res, next) => {
       req.body.image = result.secure_url;
       req.body.imageId = result.public_id;
     }
-
-    const pathName = path.join(
-      path.resolve(),
-      "src/uploads/temp",
-      req.file.filename
-    );
-    fs.unlinkSync(pathName);
   }
   const client = new Client(req.body);
   await client.save();
@@ -58,14 +51,6 @@ export const updateClient = catchError(async (req, res, next) => {
       req.body.imageId = result.public_id;
     }
 
-    const pathName = path.join(
-      path.resolve(),
-      "src/uploads/temp",
-      req.file.filename
-    );
-    if (fs.existsSync(pathName)) {
-      fs.unlinkSync(pathName);
-    }
   }
 
   const client = await Client.findByIdAndUpdate(req.params.id, req.body, {

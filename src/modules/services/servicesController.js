@@ -38,12 +38,6 @@ const addService = catchError(async (req, res, next) => {
       req.body.imageId = result.public_id;
     }
 
-    const pathName = path.join(
-      path.resolve(),
-      "src/uploads/temp",
-      req.file.filename
-    );
-    fs.unlinkSync(pathName);
   }
   const service = new Service(req.body);
   await service.save();
@@ -68,12 +62,6 @@ const updateService = catchError(async (req, res, next) => {
       req.body.imageId = result.public_id;
     }
 
-    const pathName = path.join(
-      path.resolve(),
-      "src/uploads/services",
-      req.file.filename
-    );
-    fs.unlinkSync(pathName);
   }
   req.body.slug = slugify(req.body.title);
   const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
